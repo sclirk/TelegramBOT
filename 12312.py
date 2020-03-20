@@ -1,312 +1,302 @@
-import telebot
+from telebot import TeleBot
 from telebot import types
-import time
+
+import mysql.connector
+
+from random import randint
+
 import datetime
 
-bot = telebot.TeleBot('TOKEN')
-global operation
-operation=0
 
-@bot.message_handler(commands=['start'])
-def start_message(message):
+class connector:
+    def __init__(self):
+        self.myConnection = mysql.connector.connect(host="127.0.0.1",
+                                                    user='root',
+                                                    passwd='1111',
+                                                    db='sclick_schema')
+        self.bot = TeleBot('BOT_TOKEN')
+        self.quest = 0
 
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    ite1 = types.KeyboardButton('/Лицо')
-    ite2 = types.KeyboardButton('/Ногти')
-    ite3 = types.KeyboardButton('/Волосы')
-    markup.add(ite1, ite2, ite3)
-    bot.send_message(message.chat.id,'Доброго времени суток! Выберите желаемую процедуру из списка:\n'
-                                     '/Лицо - список возможных процедур, осуществляемых на лице\n'
-                                     '/Ногти - список возможных процедур, осуществляемых на ногтях\n'
-                                     '/Волосы - список возможных процедур, осуществляемых с волосами ', reply_markup=markup)
 
-@bot.message_handler(commands=['Начало'])
-def start_message(message):
+class bot(connector):
+    def __init__(self):
+        super().__init__()
 
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    ite1 = types.KeyboardButton('/Лицо')
-    ite2 = types.KeyboardButton('/Ногти')
-    ite3 = types.KeyboardButton('/Волосы')
-    markup.add(ite1, ite2, ite3)
-    bot.send_message(message.chat.id,'Доброго времени суток! Выберите желаемую процедуру из списка:\n'
-                                     '/Лицо - список возможных процедур, осуществляемых на лице\n'
-                                     '/Ногти - список возможных процедур, осуществляемых на ногтях\n'
-                                     '/Волосы - список возможных процедур, осуществляемых с волосами ', reply_markup=markup)
+        @self.bot.message_handler(commands=["start"])
+        def send_mess(message):
+            def click(conn):
+                mycursor = conn.cursor()
+                sql = "INSERT INTO new_table (id_users, clicks_per_day, username,  level, ratio) VALUES (%s, %s, %s, %s, %s)"
+                val = ("{}".format(message.from_user.id), "{}".format(0), "{}".format(message.from_user.first_name),
+                       "{}".format(0), 10)
+                mycursor.execute(sql, val)
+                self.myConnection.commit()
+                self.bot.send_message(message.chat.id, " Добро пожаловать в систему,"
+                                                       " {} !".format(message.from_user.first_name))
 
-@bot.message_handler(commands=['Лицо'])
-def send_tex(message):
-    bot.send_message(message.chat.id, 'Выберите желаемую процедуру ухода за лицом')
-    markup = types.ReplyKeyboardMarkup(row_width=3)
-    ite1 = types.KeyboardButton('/Брови')
-    ite2 = types.KeyboardButton('/Массаж')
-    ite3 = types.KeyboardButton('/Ресницы')
-    ite4 = types.KeyboardButton('/Мезотерапия')
-    ite5 = types.KeyboardButton('/Парафинотерапия')
-    ite6 = types.KeyboardButton('/Пилинг')
-    ite7 = types.KeyboardButton('/Чистка')
-    ite8 = types.KeyboardButton('/Массаж')
-    ite9 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite2, ite3, ite4, ite5, ite6, ite7, ite8, ite9)
-    bot.send_message(message.chat.id, 'что-то еще?', reply_markup=markup)
+            try:
+                click(self.myConnection)
+            except Exception:
+                self.bot.send_message(message.chat.id,
+                                      "Добро пожаловать снова, {}".format(message.from_user.first_name))
+            markup = types.ReplyKeyboardMarkup(row_width=2)
+            ite1 = types.KeyboardButton('Курсы')
+            ite2 = types.KeyboardButton('Информация')
+            ite3 = types.KeyboardButton('Игра')
+            markup.add(ite1, ite2, ite3)
+            self.bot.send_message(message.chat.id,
+                                  'Доброго времени суток! Бот предоставит вам возможность ознакомиться '
+                                  'с содержанием курсов путем отправки Вам пробного урока\n',
+                                  reply_markup=markup)
 
-@bot.message_handler(commands=['Брови'])
-def send_tex(message):
-    global operation
-    operation = ['брови']
-    bot.send_message(message.chat.id, 'Стоимость операции по работе с бровями=**')
-    bot.send_message(message.chat.id, 'Нажмите /Время для продолжения или /Начало для возврата в главное меню')
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+        @self.bot.message_handler(content_types=['text'])
+        def send_tex(message):
+            global completed
+            if message.text == "Игра":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('Счёт')
+                ite3 = types.KeyboardButton('Узнать уровень')
+                ite2 = types.KeyboardButton('Задача')
+                ite4 = types.KeyboardButton('Купить левел')
+                ite5 = types.KeyboardButton('/start')
+                markup.add(ite1, ite2, ite3, ite5, ite4)
+                self.bot.send_message(message.chat.id, 'выберите один из возможных варинтов \n'
+                                                       'или нажмите /start для'
+                                                       ' взвращения на главную страницу', reply_markup=markup)
 
-@bot.message_handler(commands=['Массаж'])
-def send_tex(message):
-    global operation
-    operation = ['Массаж']
-    bot.send_message(message.chat.id, 'Стоимость операции массажа=**')
-    bot.send_message(message.chat.id, 'Нажмите /Время для продолжения или /Начало для возврата в главное меню')
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+            if message.text == "Узнать уровень":
+                cursor = self.myConnection.cursor()
+                cursor.execute("select level,ratio from sclick_schema.new_table "
+                               "where id_users = '{}'".format(message.from_user.id))
+                for level, ratio in cursor.fetchall():
+                    self.bot.send_message(message.chat.id, 'Ваш нынешний уровень равен {}'.format(level))
 
-@bot.message_handler(commands=['Ресницы'])
-def send_tex(message):
-    global operation
-    operation = ['Ресницы']
-    bot.send_message(message.chat.id, 'Стоимость операции по работе с ресницами**')
-    bot.send_message(message.chat.id, 'Нажмите /Время для продолжения или /Начало для возврата в главное меню')
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+            if message.text == "Купить левел":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('Обменять за решенные задачи')
+                ite2 = types.KeyboardButton('Купить за наличные')
+                ite3 = types.KeyboardButton('Игра')
+                ite5 = types.KeyboardButton('/start')
+                markup.add(ite1, ite2, ite5, ite3)
+                self.bot.send_message(message.chat.id, 'выберите один из 2-х возможных варинтов \n'
+                                                       'или нажмите /start для'
+                                                       ' взвращения на главную страницу', reply_markup=markup)
 
-@bot.message_handler(commands=['Мезотерапия'])
-def send_tex(message):
-    global operation
-    operation = ['Мезотерапия']
-    bot.send_message(message.chat.id, 'Стоимость операции мезотерапии:**')
-    bot.send_message(message.chat.id, 'Нажмите /Время для продолжения или /Начало для возврата в главное меню')
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+            if message.text == "Обменять за решенные задачи":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('Продолжить обмен')
+                ite3 = types.KeyboardButton('/start')
+                ite4 = types.KeyboardButton('Игра')
+                markup.add(ite1, ite3, ite4)
+                self.bot.send_message(message.chat.id, "Внимание!\n"
+                                                       "если вы приобритете уровень, ниже своего, то ваш конченый уровень"
+                                                       "будет равен последнему приобретенному", reply_markup=markup)
+                first_click = self.myConnection.cursor()
+                first_click.execute("select clicks_per_day,ratio  from sclick_schema.new_table"
+                                    " where id_users = '{}'".format(message.from_user.id))
+                for clicks, ratio_1 in first_click.fetchall():
+                    self.bot.send_message(message.chat.id, "у вас {} задач, этого"
+                                                           " хватит на покупку: {} уровня".format(clicks,
+                                                                                                  clicks // int(
+                                                                                                      ratio_1)))
 
-@bot.message_handler(commands=['Парафинотерапия'])
-def send_tex(message):
-    global operation
-    operation = ['Парафинотерапия']
-    bot.send_message(message.chat.id, 'Стоимость операции парафинотерапии=**')
-    bot.send_message(message.chat.id, 'Нажмите /Время для продолжения или /Начало для возврата в главное меню')
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+            if message.text == "Продолжить обмен":
+                first_click = self.myConnection.cursor()
+                first_click.execute("select clicks_per_day,ratio  from sclick_schema.new_table"
+                                    " where id_users = '{}'".format(message.from_user.id))
+                for clicks, ratio_1 in first_click.fetchall():
+                    if clicks // int(ratio_1) == 0:
+                        first_click.execute("select level,ratio from sclick_schema.new_table "
+                                            "where id_users = '{}'".format(message.from_user.id))
+                        for lev, rat in first_click.fetchall():
+                            self.bot.send_message(message.chat.id, "вы и так имеете {} уровень,"
+                                                                   " поднакопите задач на следующий)".format(lev))
+                    else:
+                        second_click = self.myConnection.cursor()
+                        second_click.execute("UPDATE new_table"
+                                             " set clicks_per_day = '{}',"
+                                             " level = '{}'"
+                                             " WHERE (id_users = '{}');".format(clicks - clicks // int(ratio_1) * 10,
+                                                                                clicks // int(ratio_1),
+                                                                                message.from_user.id))
+                        self.bot.send_message(message.chat.id, "Поздравялем! Вы приобрели {}"
+                                                               " уровень доступа!\n"
+                                              .format(clicks // int(ratio_1)))
 
-@bot.message_handler(commands=['Пилинг'])
-def send_tex(message):
-    global operation
-    operation = ['Пилинг']
-    bot.send_message(message.chat.id, 'Стоимость операции пилинга=**')
-    bot.send_message(message.chat.id, 'Нажмите /Время для продолжения или /Начало для возврата в главное меню')
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+                self.myConnection.commit()
 
-@bot.message_handler(commands=['Чистка'])
-def send_tex(message):
-    global operation
-    operation = ['Чистка']
-    bot.send_message(message.chat.id, 'Стоимость чистки=**')
-    bot.send_message(message.chat.id, 'Нажмите /Время для продолжения или /Начало для возврата в главное меню')
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+            if message.text == "Задача":
+                completed = 0
 
-@bot.message_handler(commands=['Массаж'])
-def send_tex(message):
-    global operation
-    operation = ['Массаж']
-    bot.send_message(message.chat.id, 'Стоимость массажа=**')
-    bot.send_message(message.chat.id, 'Нажмите /Время для продолжения или /Начало для возврата в главное меню')
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+                def question():
+                    global a, b, c, znak, second_znak
+                    a = randint(1, 25)
+                    b = randint(10, 35)
+                    c = randint(1, 10)
+                    znak = randint(0, 1)
+                    second_znak = randint(0, 1)
+                    if znak == 1 and second_znak == 1:
+                        second_znak = "+"
+                        znak = '+'
+                        self.quest = a + b + c
+                    if znak == 0 and second_znak == 1:
+                        second_znak = "+"
+                        znak = "-"
+                        self.quest = a - b + c
+                    if znak == 1 and second_znak == 0:
+                        second_znak = "-"
+                        znak = "+"
+                        self.quest = a + b - c
+                    if znak == 0 and second_znak == 0:
+                        second_znak = "-"
+                        znak = "-"
+                        self.quest = a - b - c
 
-@bot.message_handler(commands=['Волосы'])
-def send_tex(message):
-    bot.send_message(message.chat.id, 'Выберите желаемую процедуру ухода за волосами')
-    markup = types.ReplyKeyboardMarkup(row_width=3)
-    ite1 = types.KeyboardButton('/пусто')
-    ite2 = types.KeyboardButton('/пусто...')
-    ite3 = types.KeyboardButton('/совсем пусто(')
-    ite4=types.KeyboardButton('/Начало')
-    markup.add(ite1, ite2, ite3,ite4)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+                question()
+                self.bot.send_message(message.chat.id, "{}{}{}{}{}".format(a, znak, b, second_znak, c))
 
-@bot.message_handler(commands=['Ногти'])
-def send_tex(message):
-    bot.send_message(message.chat.id, 'Выберите желаемую процедуру ухода за ногтями')
-    markup = types.ReplyKeyboardMarkup(row_width=1)
-    ite1 = types.KeyboardButton('/Маникюр')
-    ite2 = types.KeyboardButton('/Педикюр')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite2, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор!', reply_markup=markup)
+            if message.text == "{}".format(self.quest):
+                if completed == 0:
+                    completed = 1
+                    first_click = self.myConnection.cursor()
+                    first_click.execute("select clicks_per_day, username from sclick_schema.new_table"
+                                        " where id_users = '{}'".format(message.from_user.id))
+                    for clicks, name_user in first_click.fetchall():
+                        if clicks >= 30:
+                            self.bot.send_message(message.chat.id, 'максимальное количество доступных задач = 30')
+                        else:
+                            self.bot.send_message(message.chat.id, "+1 за сегодня, итого: "
+                                                                   "{} решенных задач у '{}'".format(clicks + 1,
+                                                                                                     name_user))
+                            second_click = self.myConnection.cursor()
+                            second_click.execute("UPDATE new_table"
+                                                 " set clicks_per_day = '{}'"
+                                                 " WHERE (id_users = '{}');".format(clicks + 1, message.from_user.id))
 
-@bot.message_handler(commands=['Маникюр'])
-def send_tex(message):
-    bot.send_message(message.chat.id, 'стоимость маникюра = **'
-                                      '\n выбирите желаемый вариант: с гелем - /Гель'
-                                      '\n с лаком- /Лак')
+                    self.myConnection.commit()
+                else:
+                    self.bot.send_message(message.chat.id, "Вы уже отвечали на этот вопрос")
 
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    ite1 = types.KeyboardButton('/Гель')
-    ite2 = types.KeyboardButton('/Лак')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite2, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор! ', reply_markup=markup)
+            if message.text == "Счёт":
+                def doQuery():
+                    cur = self.myConnection.cursor()
+                    cur.execute("select clicks_per_day,username from sclick_schema.new_table where"
+                                " id_users = {}".format(message.from_user.id))
+                    for point, name_of_user in cur.fetchall():
+                        self.bot.send_message(message.chat.id, 'Имя: {} общий счет составляет'
+                                                               ' {} поитов'.format(name_of_user, point))
 
-@bot.message_handler(commands=['Гель'])
-def send_tex(message):
-    global operation
-    operation = ['Маникюр с Гелем']
-    bot.send_message(message.chat.id, 'стоимость маникюра с гелем =**'
-                                      '\n сообщите боту удобное для вас время и свой номер телефона')
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор! ', reply_markup=markup)
+                doQuery()
 
-@bot.message_handler(commands=['Лак'])
-def send_tex(message):
-    global operation
-    operation = ['Маникюр с Лаком']
-    bot.send_message(message.chat.id, 'стоимость маникюра с лаком =**'
-                                      '\n сообщите боту удобное для вас время и свой номер телефона')
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор! ', reply_markup=markup)
+            if message.text == "Информация":
+                self.bot.send_message(message.chat.id,
+                                      "Курсы являются платной версией курсов с оригинальных источников\n"
+                                      "Выберите раздел 'Курсы' для продолжения\n"
+                                      " Бот так же может отправить Вам всю информацию"
+                                      " о стикере, если вы ему его отправите)")
 
-@bot.message_handler(commands=['Педикюр'])
-def send_tex(message):
-    bot.send_message(message.chat.id, 'стоимость маникюра = **'
-                                      '\n выбирите желаемый вариант: с гелем - /гель'
-                                      '\n с лаком- /лак')
+            if message.text == "Обмен задач":
+                def exchange():
+                    second_click = self.myConnection.cursor()
+                    second_click.execute("UPDATE new_table"
+                                         " set clicks_per_day = clicks_per_day/ratio as coefficient,"
+                                         " level = level + coefficient"
+                                         " WHERE (id_users = '{}');".format(message.from_user.id))
+                    self.myConnection.commit()
 
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    ite1 = types.KeyboardButton('/гель')
-    ite2 = types.KeyboardButton('/лак')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite2, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор! ', reply_markup=markup)
+                exchange()
 
-@bot.message_handler(commands=['гель'])
-def send_tex(message):
-    global operation
-    operation = ['Педикюр с Гелем']
-    bot.send_message(message.chat.id, 'стоимость педикюра с гелем =**'
-                                      '\n сообщите боту удобное для вас время и свой номер телефона')
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор! ', reply_markup=markup)
+            if message.text == "Курсы" or message.text == "Вернуться":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('Курсы С#')
+                ite2 = types.KeyboardButton('Курсы С++')
+                ite3 = types.KeyboardButton('Курсы HTML/CSS')
+                ite4 = types.KeyboardButton('Курсы JS')
+                ite5 = types.KeyboardButton('/start')
+                markup.add(ite1, ite2, ite3, ite4, ite5)
+                self.bot.send_message(message.chat.id, 'выберите один из 4-х возможных варинтов \n'
+                                                       'или нажмите /start для взвращения'
+                                                       ' на главную страницу', reply_markup=markup)
 
-@bot.message_handler(commands=['лак'])
-def send_tex(message):
-    global operation
-    operation = ['Педикюр с Лаком']
-    bot.send_message(message.chat.id, 'стоимость педикюра с лаком =**'
-                                      '\n сообщите боту удобное для вас время и свой номер телефона')
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    ite1 = types.KeyboardButton('/Время')
-    ite3 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite3)
-    bot.send_message(message.chat.id, 'Спасибо за Ваш выбор! ', reply_markup=markup)
+            if message.text == "Курсы JS" or message.text == "Вернуться на выбор курсов JS":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('Курсы C# HTML Academy')
+                ite2 = types.KeyboardButton('Курсы от Академии Верстки')
+                ite3 = types.KeyboardButton('Телеграм боты на JC')
+                ite4 = types.KeyboardButton('Курсы C# от залупа4')
+                ite5 = types.KeyboardButton('Вернуться')
+                markup.add(ite1, ite2, ite3, ite4, ite5)
+                self.bot.send_message(message.chat.id, 'выберите один из 4-х возможных варинтов ', reply_markup=markup)
 
-@bot.message_handler(commands=['Время'])
-def send_tex(message):
-    bot.send_message(message.chat.id, 'выберите один из 4-х возможных варинтов ')
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    ite1 = types.KeyboardButton('9:00-12:00')
-    ite2 = types.KeyboardButton('12:00-14:00')
-    ite3 = types.KeyboardButton('14:00-16:00')
-    ite4 = types.KeyboardButton('16:00-19:00')
-    ite5 = types.KeyboardButton('/Начало')
-    markup.add(ite1, ite2, ite3, ite4,ite5)
-    bot.send_message(message.chat.id, 'оставьте свой номер телефона боту', reply_markup=markup)
+            if message.text == "Курсы C# HTML Academy":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('JS base')
+                ite2 = types.KeyboardButton('JS Advanced')
+                ite5 = types.KeyboardButton('Вернуться на выбор курсов JS')
+                markup.add(ite1, ite2, ite5)
+                self.bot.send_message(message.chat.id, 'выберите один из 3-х возможных варинтов ', reply_markup=markup)
 
-@bot.message_handler(content_types=["text"])
-def send_mess(message):
-    if message.text == '9:00-12:00':
-        global operation
-        markup = types.ReplyKeyboardMarkup(row_width=2)
-        ite1 = types.KeyboardButton('оставить свой телефон',request_contact=True)
-        ite2 = types.KeyboardButton('/Начало')
-        markup.add(ite1,ite2)
-        bot.send_message(message.chat.id, 'оставьте номер телефона', reply_markup=markup)
-        name = message.from_user.first_name
-        name1=str(message.from_user.id)
-        opi = open('zapis.txt', 'a').write('\n\nимя пользователя: '+name+ ' предпочтительное время: '+message.text+" Название работы: "+ str(operation)+ " ID пользователя: "+name1+' время получения заявки: '+str(datetime.datetime.now()) +' номер пользователя  ')
-        bot.send_message(message.chat.id, '  ', reply_markup=opi)
-    if message.text == '12:00-14:00':
-        markup = types.ReplyKeyboardMarkup(row_width=2)
-        ite1 = types.KeyboardButton('оставить свой телефон',request_contact=True)
-        ite2 = types.KeyboardButton('/Начало')
-        markup.add(ite1,ite2)
-        bot.send_message(message.chat.id, 'оставьте номер телефона', reply_markup=markup)
-        name = message.from_user.first_name
-        name1=str(message.from_user.id)
-        opi = open('zapis.txt', 'a').write('\n\nимя пользователя: '+name+ ' предпочтительное время: '+message.text+" Название работы: "+ str(operation)+ " ID пользователя: "+name1+' время получения заявки: '+str(datetime.datetime.now()) +' номер пользователя  ')
-        bot.send_message(message.chat.id, '  ', reply_markup=opi)
-    if message.text == '14:00-16:00':
-        markup = types.ReplyKeyboardMarkup(row_width=2)
-        ite1 = types.KeyboardButton('оставить свой телефон',request_contact=True)
-        ite2 = types.KeyboardButton('/Начало')
-        markup.add(ite1,ite2)
-        bot.send_message(message.chat.id, 'оставьте номер телефона', reply_markup=markup)
-        name = message.from_user.first_name
-        name1=str(message.from_user.id)
-        opi = open('zapis.txt', 'a').write('\n\nимя пользователя: '+name+ ' предпочтительное время: '+message.text+" Название работы: "+ str(operation)+ " ID пользователя: "+name1+' время получения заявки: '+str(datetime.datetime.now()) +' номер пользователя  ')
-        bot.send_message(message.chat.id, '  ', reply_markup=opi)
-    if message.text == '16:00-19:00':
-        markup = types.ReplyKeyboardMarkup(row_width=2)
-        ite1 = types.KeyboardButton('оставить свой телефон',request_contact=True)
-        ite2 = types.KeyboardButton('/Начало')
-        markup.add(ite1,ite2)
-        bot.send_message(message.chat.id, 'оставьте номер телефона', reply_markup=markup)
-        name = message.from_user.first_name
-        name1=str(message.from_user.id)
-        opi = open('zapis.txt', 'a').write('\n\nимя пользователя: '+name+ ' предпочтительное время: '+message.text+" Название работы: "+ str(operation)+ " ID пользователя: "+name1+' время получения заявки: '+str(datetime.datetime.now()) +' номер пользователя  ')
-        bot.send_message(message.chat.id, '  ', reply_markup=opi)
-    else:
-        txt=message.text
-        name = message.from_user.first_name
-        name1=str(message.from_user.id)
-        name2=str(message.from_user.last_name)
-        name3=str(message.from_user.username)
-        open('note_from_zapis_bot.txt', 'a').write('\nимя польз: '+name+' написал нам: '+txt+' ID человека: '+name1+" Фамилия: "+name2+" Никнейм: "+name3+' время отправки сообщения: '+str(datetime.datetime.now()))
+            if message.text == "Курсы Android":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('Курсы Android от залупа1')
+                ite5 = types.KeyboardButton('Вернуться')
+                markup.add(ite1, ite5)
+                self.bot.send_message(message.chat.id, 'выберите один из 4-х возможных варинтов ', reply_markup=markup)
 
-@bot.message_handler(content_types=['contact'])
-def contact_handler(message):
-    open('zapis.txt', 'a').write(message.contact.phone_number)
-    bot.send_message(message.chat.id, ' Спасибо, ваша заявка принята, хорошего дня')
+            if message.text == "Курсы С#":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('Курсы C# Base')
+                ite2 = types.KeyboardButton('Курсы C# professional')
+                ite5 = types.KeyboardButton('Вернуться')
+                markup.add(ite1, ite2, ite5)
+                self.bot.send_message(message.chat.id, 'выберите один из 4-х возможных варинтов ', reply_markup=markup)
 
-if __name__ == '__main__':
-    bot.polling(none_stop=True)
+            if message.text == "Курсы HTML/CSS" or message.text == 'Вернуться к выбору HTML/CSS':
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('Курсы HTML Academy')
+                ite2 = types.KeyboardButton('Курсы Udemy')
+                ite3 = types.KeyboardButton('Курсы "Типичный верстальщик"')
+                ite4 = types.KeyboardButton('Курсы Citvdn')
+                ite5 = types.KeyboardButton('Вернуться')
+                markup.add(ite1, ite2, ite3, ite4, ite5)
+                self.bot.send_message(message.chat.id, 'выберите один из 4-х возможных варинтов ', reply_markup=markup)
+
+            if message.text == "Курсы HTML Academy":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('Курсы "Типичный верстальщик"')
+                ite2 = types.KeyboardButton('Вернуться к выбору HTML/CSS')
+                markup.add(ite1, ite2)
+                self.bot.send_message(message.chat.id, 'выберите один из 2-х возможных варинтов ', reply_markup=markup)
+
+            if message.text == 'Курсы C# от залупа1':
+                doc = open("zalupa_1.txt")
+                self.bot.send_document(message.from_user.id, doc)
+
+            try:
+                ranger = list(range(100))
+                if int(message.text) in ranger or int(message.text) != self.quest:
+                    self.bot.send_sticker(message.chat.id,
+                                          'CAACAgIAAxkBAAIYll5j-fip9YzaPty-15f5mHd3dIGqAAJFAAOgayEa6Tj_AjvcOO8YBA')
+                    self.bot.send_sticker(message.chat.id,
+                                          'CAACAgIAAxkBAAIYl15j-fkIYAyfR2b5Zt8BKsaE3lUqAAI8AAOgayEapmwggmFMObEYBA')
+                    self.bot.send_message(message.chat.id, 'ТЫ КАК ВЫЛЕЗ ТО ДЕБИЛ БЛЯТЬ')
+
+                    self.bot.send_audio(message.chat.id, open("B:/sirena.mp3", "rb"))
+                    self.bot.send_audio(message.chat.id, open("B:/asshole.mp3", "rb"))
+                    self.bot.send_audio(message.chat.id, open("B:/bad_joke.mp3", "rb"))
+            except Exception:
+                pass
+            else:
+                open('zapiski_boty.txt', 'a').write(
+                    '\nимя польз: ' + message.from_user.first_name + ' написал нам: ' + message.text + ' ID'
+                                                                                                       ' человека: ' + str(
+                        message.from_user.id) + " Никнейм: " + str(message.from_user.username) + ' время'
+                                                                                                 ' отправки сообщения: ' + str(
+                        datetime.datetime.now()))
+
+    def non_stop(self):
+        self.bot.polling(none_stop=True)
+
+
+b = bot()
+b.non_stop()
