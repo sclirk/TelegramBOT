@@ -89,7 +89,7 @@ class bot(connector):
                 ite4 = types.KeyboardButton('Игра')
                 markup.add(ite1, ite3, ite4)
                 self.bot.send_message(message.chat.id, "Внимание!\n"
-                                                       "если вы приобритете уровень, ниже своего, то ваш конченый уровень"
+                                                       "если вы приобритете уровень, ниже своего, то ваш конечный уровень"
                                                        "будет равен последнему приобретенному", reply_markup=markup)
                 first_click = self.myConnection.cursor()
                 first_click.execute("select clicks_per_day,ratio  from sclick_schema.new_table"
