@@ -10,11 +10,11 @@ import datetime
 
 class connector:
     def __init__(self):
-        self.myConnection = mysql.connector.connect(host="127.0.0.1 localhost",
+        self.myConnection = mysql.connector.connect(host="127.0.0.1",
                                                     user='root',
-                                                    passwd='typical_pass',
-                                                    db='name_db')
-        self.bot = TeleBot('BOT_TOKEN')
+                                                    passwd='1111',
+                                                    db='sclick_schema')
+        self.bot = TeleBot('815071611:AAH5oTHw-ao0Q35WYHexfwMm-0p0WIvtR_o')
         self.quest = 0
 
 
@@ -22,6 +22,7 @@ class bot(connector):
     def __init__(self):
         super().__init__()
 
+    def bot_funk(self):
         @self.bot.message_handler(commands=["start"])
         def send_mess(message):
             def click(conn):
@@ -49,8 +50,21 @@ class bot(connector):
                                   'с содержанием курсов путем отправки Вам пробного урока\n',
                                   reply_markup=markup)
 
+    def text_bot(self):
         @self.bot.message_handler(content_types=['text'])
         def send_tex(message):
+            if message.text == "номер":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('оставить свой телефон', request_contact=True)
+                ite2 = types.KeyboardButton('/start')
+                markup.add(ite1, ite2)
+                self.bot.send_message(message.chat.id, " слыш", reply_markup=markup)
+            if message.text == "где я?":
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                ite1 = types.KeyboardButton('передать свои геоданные', request_location=True)
+                ite2 = types.KeyboardButton('/start')
+                markup.add(ite2, ite1)
+                self.bot.send_message(message.chat.id, " локация", reply_markup=markup)
             global completed
             if message.text == "Игра":
                 markup = types.ReplyKeyboardMarkup(row_width=2)
@@ -193,7 +207,9 @@ class bot(connector):
                                       "Курсы являются платной версией курсов с оригинальных источников\n"
                                       "Выберите раздел 'Курсы' для продолжения\n"
                                       " Бот так же может отправить Вам всю информацию"
-                                      " о стикере, если вы ему его отправите)")
+                                      " о стикере, если вы ему его отправите)"
+                                      " \nнапишите номер, если хотите чтобы мы вам перезвонили\n"
+                                      "или напишиите 'где я?' чтобы узнать свое местоположение")
 
             if message.text == "Обмен задач":
                 def exchange():
@@ -223,7 +239,7 @@ class bot(connector):
                 ite1 = types.KeyboardButton('Курсы C# HTML Academy')
                 ite2 = types.KeyboardButton('Курсы от Академии Верстки')
                 ite3 = types.KeyboardButton('Телеграм боты на JC')
-                ite4 = types.KeyboardButton('Курсы C# от залупа4')
+                ite4 = types.KeyboardButton('Курсы C# от ...')
                 ite5 = types.KeyboardButton('Вернуться')
                 markup.add(ite1, ite2, ite3, ite4, ite5)
                 self.bot.send_message(message.chat.id, 'выберите один из 4-х возможных варинтов ', reply_markup=markup)
@@ -238,7 +254,7 @@ class bot(connector):
 
             if message.text == "Курсы Android":
                 markup = types.ReplyKeyboardMarkup(row_width=2)
-                ite1 = types.KeyboardButton('Курсы Android от залупа1')
+                ite1 = types.KeyboardButton('Курсы Android от ...')
                 ite5 = types.KeyboardButton('Вернуться')
                 markup.add(ite1, ite5)
                 self.bot.send_message(message.chat.id, 'выберите один из 4-х возможных варинтов ', reply_markup=markup)
@@ -268,8 +284,8 @@ class bot(connector):
                 markup.add(ite1, ite2)
                 self.bot.send_message(message.chat.id, 'выберите один из 2-х возможных варинтов ', reply_markup=markup)
 
-            if message.text == 'Курсы C# от залупа1':
-                doc = open("zalupa_1.txt")
+            if message.text == 'Курсы C# от источник':
+                doc = open("ist_01.txt")
                 self.bot.send_document(message.from_user.id, doc)
 
             try:
@@ -279,7 +295,7 @@ class bot(connector):
                                           'CAACAgIAAxkBAAIYll5j-fip9YzaPty-15f5mHd3dIGqAAJFAAOgayEa6Tj_AjvcOO8YBA')
                     self.bot.send_sticker(message.chat.id,
                                           'CAACAgIAAxkBAAIYl15j-fkIYAyfR2b5Zt8BKsaE3lUqAAI8AAOgayEapmwggmFMObEYBA')
-                    self.bot.send_message(message.chat.id, 'ТЫ КАК ВЫЛЕЗ ТО ДЕБИЛ БЛЯТЬ')
+                    self.bot.send_message(message.chat.id, 'Неправильный ответ!')
 
                     self.bot.send_audio(message.chat.id, open("B:/sirena.mp3", "rb"))
                     self.bot.send_audio(message.chat.id, open("B:/asshole.mp3", "rb"))
@@ -288,15 +304,31 @@ class bot(connector):
                 pass
             else:
                 open('zapiski_boty.txt', 'a').write(
-                    '\nимя польз: ' + message.from_user.first_name + ' написал нам: ' + message.text + ' ID'
-                                                                                                       ' человека: ' + str(
-                        message.from_user.id) + " Никнейм: " + str(message.from_user.username) + ' время'
-                                                                                                 ' отправки сообщения: ' + str(
-                        datetime.datetime.now()))
+                    '\nимя польз: ' + message.from_user.first_name + ' написал нам: ' + message.text +
+                    ' ID человека: ' + str(message.from_user.id) + " Никнейм: " + str(message.from_user.username) +
+                    ' время отправки сообщения: ' + str(datetime.datetime.now()))
+
+    def sticker_bot(self):
+        @self.bot.message_handler(content_types=['sticker'])
+        def sell_sticker(message):
+            self.bot.send_message(message.chat.id, 'Эмоция стикера:' + message.sticker.emoji +
+                                  '\nАйди стикера: ' + message.sticker.file_id)
+
+    def phone(self):
+        @self.bot.message_handler(content_types=['contact'])
+        def number(message):
+            open('number_users.txt', 'a').write('\n' + message.contact.phone_number + ' имя:' + str(message.from_user.username))
+            self.bot.send_message(message.chat.id, ' Номер записан, спасибо за понимание')
+
+    def locate(self):
+        @self.bot.message_handler(content_types=['location'])
+        def locate(message):
+            self.bot.send_message(message.chat.id, "широта вашего места:" + message.location.latitude)
+            self.bot.send_message(message.chat.id, "долгота вашего места" + message.location.longitude)
 
     def non_stop(self):
         self.bot.polling(none_stop=True)
 
 
 b = bot()
-b.non_stop()
+b.sticker_bot(), b.bot_funk(), b.text_bot(), b.phone(), b.locate(), b.non_stop()
