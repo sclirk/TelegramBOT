@@ -10,10 +10,10 @@ import datetime
 
 class connector:
     def __init__(self):
-        self.myConnection = mysql.connector.connect(host="127.0.0.1",
+        self.myConnection = mysql.connector.connect(host="127.0.0.1 localhost",
                                                     user='root',
-                                                    passwd='1111',
-                                                    db='sclick_schema')
+                                                    passwd='typical_pass',
+                                                    db='name_db')
         self.bot = TeleBot('BOT_TOKEN')
         self.quest = 0
 
