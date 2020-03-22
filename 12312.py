@@ -296,10 +296,6 @@ class bot(connector):
                     self.bot.send_sticker(message.chat.id,
                                           'CAACAgIAAxkBAAIYl15j-fkIYAyfR2b5Zt8BKsaE3lUqAAI8AAOgayEapmwggmFMObEYBA')
                     self.bot.send_message(message.chat.id, 'Неправильный ответ!')
-
-                    self.bot.send_audio(message.chat.id, open("B:/sirena.mp3", "rb"))
-                    self.bot.send_audio(message.chat.id, open("B:/asshole.mp3", "rb"))
-                    self.bot.send_audio(message.chat.id, open("B:/bad_joke.mp3", "rb"))
             except Exception:
                 pass
             else:
