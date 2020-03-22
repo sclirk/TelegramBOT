@@ -13,8 +13,8 @@ class connector:
         self.myConnection = mysql.connector.connect(host="127.0.0.1",
                                                     user='root',
                                                     passwd='1111',
-                                                    db='sclick_schema')
-        self.bot = TeleBot('815071611:AAH5oTHw-ao0Q35WYHexfwMm-0p0WIvtR_o')
+                                                    db='db')
+        self.bot = TeleBot('Bot_Token')
         self.quest = 0
 
 
