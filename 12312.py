@@ -13,8 +13,8 @@ class connector:
         self.myConnection = mysql.connector.connect(host="127.0.0.1",
                                                     user='root',
                                                     passwd='1111',
-                                                    db='db')
-        self.bot = TeleBot('Bot_Token')
+                                                    db='SCHEME')
+        self.bot = TeleBot('TOKEN')
         self.quest = 0
 
 
@@ -27,7 +27,8 @@ class bot(connector):
         def send_mess(message):
             def click(conn):
                 mycursor = conn.cursor()
-                sql = "INSERT INTO new_table (id_users, clicks_per_day, username,  level, ratio) VALUES (%s, %s, %s, %s, %s)"
+                sql = "INSERT INTO new_table (id_users, clicks_per_day, username,  level, ratio) VALUES (%s, %s, %s, " \
+                      "%s, %s) "
                 val = ("{}".format(message.from_user.id), "{}".format(0), "{}".format(message.from_user.first_name),
                        "{}".format(0), 10)
                 mycursor.execute(sql, val)
@@ -289,12 +290,7 @@ class bot(connector):
                 self.bot.send_document(message.from_user.id, doc)
 
             try:
-                ranger = list(range(100))
-                if int(message.text) in ranger or int(message.text) != self.quest:
-                    self.bot.send_sticker(message.chat.id,
-                                          'CAACAgIAAxkBAAIYll5j-fip9YzaPty-15f5mHd3dIGqAAJFAAOgayEa6Tj_AjvcOO8YBA')
-                    self.bot.send_sticker(message.chat.id,
-                                          'CAACAgIAAxkBAAIYl15j-fkIYAyfR2b5Zt8BKsaE3lUqAAI8AAOgayEapmwggmFMObEYBA')
+                if int(message.text) in list(range(100)) or int(message.text) != self.quest:
                     self.bot.send_message(message.chat.id, 'Неправильный ответ!')
             except Exception:
                 pass
